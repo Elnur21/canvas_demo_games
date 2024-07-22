@@ -26,10 +26,14 @@ let forecolor = "#4a3f35";
 let linecolor = "#2f2519";
 let linewidth = 1;
 let offset = -10;
+let yRatio = 0.3;
 let moving = 0;
+let speed = 0;
 
 function draw() {
-  moving++;
+  speed -= (speed - 1) * 0.01;
+  moving += 5 * speed;
+
   ctx.fillStyle = bgcolor;
   ctx.fillRect(x, y, c.width, c.height);
 
@@ -39,7 +43,7 @@ function draw() {
   ctx.beginPath();
   ctx.moveTo(offset, c.height - offset);
   for (let i = offset; i < c.width - offset; ++i) {
-    ctx.lineTo(i, c.height * 0.9 - noise(i + moving) * 0.3);
+    ctx.lineTo(i, c.height * 0.9 - noise(i + moving) * yRatio);
   }
   ctx.lineTo(c.width - offset, c.height - offset);
   ctx.closePath();
