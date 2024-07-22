@@ -3,6 +3,19 @@
   padding: 0;
   box-sizing: border-box;
 }
+body{
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.changeCar{
+    text-align: center;
+    padding: 20px 0;
+}
+input{
+    margin-left: 20px;
+    margin-top: 20px;
+}
 
 .gameBoard {
   width: 100%;

@@ -20,6 +20,23 @@ c.height = window.innerHeight;
 document.body.appendChild(c);
 let ctx = c.getContext("2d");
 
+const form = document.getElementById("changeCarForm");
+// Get all the radio buttons with the name 'car'
+const radios = document.querySelectorAll('input[name="car"]');
+
+// Add event listeners to each radio button
+radios.forEach((radio) => {
+  radio.addEventListener("change", () => {
+    // Get the value of the selected radio button
+    const selectedValue = document.querySelector(
+      'input[name="car"]:checked'
+    ).value;
+    localStorage.setItem("car", selectedValue);
+
+    window.location.reload();
+  });
+});
+
 let points = Array.from({ length: 255 }, (_, i) => i + 1);
 for (let i = points.length - 1; i > 0; i--) {
   const j = Math.floor(Math.random() * (i + 1));
@@ -34,9 +51,20 @@ var noise = (x) => {
 let lerp = (a, b, t) => a + ((b - a) * (1 - Math.cos(t * Math.PI))) / 2;
 
 // variables
+let car = localStorage.getItem("car") ? localStorage.getItem("car") : "07";
+let carHeights = {
+  "015": 80,
+  "07": 80,
+  niva: 100,
+};
+let carWidths = {
+  "015": 150,
+  "07": 170,
+  niva: 130,
+};
 let x = 0;
 let y = 0;
-let bgcolor = "#ff4301";
+let bgcolor = "aquamarine";
 let forecolor = "#4a3f35";
 let linecolor = "#2f2519";
 let linewidth = 1;
@@ -56,7 +84,7 @@ let player = new (function () {
   this.x = c.width / 2;
   this.y = 50;
   this.truck = new Image();
-  this.truck.src = "./images/015.png";
+  this.truck.src = `./images/${car}.png`;
   this.rot = 0;
   this.ySpeed = 0;
   this.rSpeed = 0;
@@ -128,7 +156,7 @@ let player = new (function () {
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.rot);
-    ctx.drawImage(this.truck, -75, -40, 150, 80);
+    ctx.drawImage(this.truck, -75, -40, carWidths[car], carHeights[car]);
     ctx.restore();
   };
 })();
