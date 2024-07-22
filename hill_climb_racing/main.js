@@ -29,14 +29,76 @@ let offset = -10;
 let yRatio = 0.3;
 let moving = 0;
 let speed = 0;
+let playing = true;
+
+// player
+let player = new (function () {
+  this.x = c.width / 2;
+  this.y = 50;
+  this.truck = new Image();
+  this.truck.src = "./images/015.png";
+  this.rot = 0;
+  this.ySpeed = 0;
+  this.rSpeed = 0;
+
+  this.draw = function () {
+    let p1 = c.height * 0.9 - noise(this.x + moving) * yRatio;
+    let p2 = c.height * 0.9 - noise(this.x + moving + 5) * yRatio;
+    let ground = 0;
+    let offset = 35;
+    if (p1 - offset > this.y) {
+      this.ySpeed += 0.1;
+    } else {
+      this.ySpeed -= this.y - (p1 - offset);
+      this.y = p1 - offset;
+      ground = 1;
+    }
+
+    if (!playing || (ground && Math.abs(this.rot) > Math.PI * 0.5)) {
+      playing = false;
+      this.x -= speed * 5;
+      this.rSpeed = 5;
+
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = "bold 30px Arial";
+      ctx.fillStyle = "white";
+      ctx.fillText("GAME OVER", c.width / 2, c.height / 3);
+    }
+
+    let angle = Math.atan2(p2 - offset - this.y, 5);
+
+    if (ground && playing) {
+      this.rot -= (this.rot - angle) * 0.5;
+      this.rSpeed = this.rSpeed - (angle - this.rot);
+    }
+
+    this.rot -= this.rSpeed * 0.1;
+    if (this.rot > Math.PI) this.rot = -Math.PI;
+    if (this.rot < -Math.PI) this.rot = Math.PI;
+    this.y += this.ySpeed;
+    ctx.save();
+    ctx.translate(this.x, this.y);
+
+    // if(noise(this.x + moving)>noise(this.x + moving -1)){
+    //     ctx.rotate(-this.rot);
+    // }else{
+    ctx.rotate(this.rot);
+    // }
+    ctx.drawImage(this.truck, -75, -40, 150, 80);
+    ctx.restore();
+  };
+})();
 
 function draw() {
   speed -= (speed - 1) * 0.01;
   moving += 5 * speed;
 
+  //   background
   ctx.fillStyle = bgcolor;
   ctx.fillRect(x, y, c.width, c.height);
 
+  //   ground
   ctx.strokeStyle = linecolor;
   ctx.lineWidth = linewidth;
   ctx.fillStyle = forecolor;
@@ -49,6 +111,8 @@ function draw() {
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
+
+  player.draw();
   requestAnimationFrame(draw);
 }
 
