@@ -209,6 +209,7 @@ if (isMobile) {
     let touches = e.changedTouches;
     for (let i = 0; i < touches.length; i++) {
       const touch = touches[i];
+      checkControlButtons(touch.pageX, touch.screenY, true);
     }
   }
 } else {
@@ -227,7 +228,7 @@ window.onresize = function () {
   window.location.reload();
 };
 
-function checkControlButtons(x, y) {
+function checkControlButtons(x, y, end = false) {
   console.log(x, y);
   let restartY1 = isMobile ? 150 : -50;
   let restartY2 = isMobile ? 200 : 0;
@@ -241,10 +242,10 @@ function checkControlButtons(x, y) {
     window.location.reload();
   }
   if (playing && x > 20 && x < 90 && y > c.height - 90 && y < c.height - 20) {
-    console.log("sol");
+    k.ArrowLeft = end ? 0 : 1;
   }
   if (playing && x > 110 && x < 180 && y > c.height - 90 && y < c.height - 20) {
-    console.log("sag");
+    k.ArrowRight = end ? 0 : 1;
   }
   if (
     playing &&
@@ -253,6 +254,6 @@ function checkControlButtons(x, y) {
     y > c.height - 90 &&
     y < c.height - 20
   ) {
-    console.log("gas");
+    k.ArrowUp = end ? 0 : 1;
   }
 }
