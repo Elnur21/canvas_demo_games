@@ -45,6 +45,11 @@ let yRatio = 0.3;
 let moving = 0;
 let speed = 0;
 let playing = true;
+const k = {
+  ArrowUp: 0,
+  ArrowLeft: 0,
+  ArrowRight: 0,
+};
 
 // player
 let player = new (function () {
@@ -63,17 +68,26 @@ let player = new (function () {
   this.leftBtn.src = "./images/left.png";
   this.rightBtn = new Image();
   this.rightBtn.src = "./images/right.png";
-  this.nitroBtn = new Image();
-  this.nitroBtn.src = "./images/nitro.png";
+  this.gasBtn = new Image();
+  this.gasBtn.src = "./images/gas.png";
   this.pauseBtn = new Image();
   this.pauseBtn.src = "./images/resume.png";
 
   this.drawInterFace = function () {
     // buttons draw
     if (playing) {
-      ctx.drawImage(this.leftBtn, 20, c.height - 90, 70, 70);
-      ctx.drawImage(this.rightBtn, 110, c.height - 90, 70, 70);
-      ctx.drawImage(this.nitroBtn, c.width - 90, c.height - 90, 70, 70);
+      if (isMobile) {
+        ctx.drawImage(this.leftBtn, 20, c.height - 90, 70, 70);
+        ctx.drawImage(this.rightBtn, 110, c.height - 90, 70, 70);
+        ctx.drawImage(this.gasBtn, c.width - 90, c.height - 90, 70, 70);
+      }
+    } else {
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = "bold 30px Arial";
+      ctx.fillStyle = "white";
+      ctx.fillText("GAME OVER", c.width / 2, c.height / 3);
+      ctx.drawImage(this.startBtn, c.width / 2 - 25, c.height / 3 + 50, 50, 50);
     }
   };
   this.draw = function () {
@@ -93,13 +107,6 @@ let player = new (function () {
       playing = false;
       this.x -= speed * 5;
       this.rSpeed = 5;
-
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.font = "bold 30px Arial";
-      ctx.fillStyle = "white";
-      ctx.fillText("GAME OVER", c.width / 2, c.height / 3);
-      ctx.drawImage(this.startBtn, c.width / 2 - 25, c.height / 3 + 50, 50, 50);
     }
 
     let angle = Math.atan2(p2 - offset - this.y, 5);
@@ -108,6 +115,9 @@ let player = new (function () {
       this.rot -= (this.rot - angle) * 0.5;
       this.rSpeed = this.rSpeed - (angle - this.rot);
     }
+
+    this.rSpeed += (k.ArrowLeft - k.ArrowRight) * 0.05;
+    // this.rot -= this.rSpeed * 0.1;
 
     this.rot -= this.rSpeed * 0.1;
     if (this.rot > Math.PI) this.rot = -Math.PI;
@@ -124,8 +134,8 @@ let player = new (function () {
 })();
 
 function draw() {
-  speed -= (speed - 1) * 0.01;
-  moving += 5 * speed;
+  speed -= (speed - k.ArrowUp) * 0.01;
+  moving += 10 * speed;
 
   //   background
   ctx.fillStyle = bgcolor;
@@ -152,29 +162,69 @@ function draw() {
 
 draw();
 
-c.addEventListener("touchstart", handleStart, false);
-c.addEventListener("touchend", handleEnd, false);
+if (isMobile) {
+  // mobile control
+  c.addEventListener("touchstart", handleStart, false);
+  c.addEventListener("touchend", handleEnd, false);
 
-function handleStart(e) {
-  e.preventDefault();
-  let touches = e.changedTouches;
-  for (let i = 0; i < touches.length; i++) {
-    const touch = touches[i];
-    if (
-      touch.pageX > c.width / 2 - 25 &&
-      touch.pageX < c.width / 2 + 25 &&
-      touch.pageY > c.height / 3 - 50 &&
-      touch.pageY < c.height / 3
-    ) {
-      window.location.reload();
+  function handleStart(e) {
+    e.preventDefault();
+    let touches = e.changedTouches;
+    for (let i = 0; i < touches.length; i++) {
+      const touch = touches[i];
+      checkControlButtons(touch.pageX, touch.screenY);
     }
+  }
+
+  function handleEnd(e) {
+    e.preventDefault();
+    let touches = e.changedTouches;
+    for (let i = 0; i < touches.length; i++) {
+      const touch = touches[i];
+    }
+  }
+} else {
+  // desktop control
+  onkeydown = (d) => (k[d.key] = 1);
+  onkeyup = (d) => (k[d.key] = 0);
+
+  c.addEventListener("click", handleClick, false);
+  function handleClick(e) {
+    e.preventDefault();
+    checkControlButtons(e.clientX, e.clientY);
   }
 }
 
-function handleEnd(e) {
-  e.preventDefault();
-  let touches = e.changedTouches;
-  for (let i = 0; i < touches.length; i++) {
-    const touch = touches[i];
+window.onresize = function () {
+  window.location.reload();
+};
+
+function checkControlButtons(x, y) {
+  console.log(x, y);
+  let restartY1 = isMobile ? 150 : -50;
+  let restartY2 = isMobile ? 200 : 0;
+  if (
+    !playing &&
+    x > c.width / 2 - 25 &&
+    x < c.width / 2 + 25 &&
+    y > c.height / 3 + restartY1 &&
+    y < c.height / 3 + restartY2
+  ) {
+    window.location.reload();
+  }
+  if (playing && x > 20 && x < 90 && y > c.height - 90 && y < c.height - 20) {
+    console.log("sol");
+  }
+  if (playing && x > 110 && x < 180 && y > c.height - 90 && y < c.height - 20) {
+    console.log("sag");
+  }
+  if (
+    playing &&
+    x > c.width - 90 &&
+    x < c.width - 20 &&
+    y > c.height - 90 &&
+    y < c.height - 20
+  ) {
+    console.log("gas");
   }
 }
