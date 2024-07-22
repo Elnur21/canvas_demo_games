@@ -5,11 +5,6 @@ c.height = window.innerHeight;
 document.body.appendChild(c);
 let ctx = c.getContext("2d");
 
-// let points = [];
-// while (points.length < 255) {
-//   while (points.includes((val = Math.floor(Math.random() * 255))))
-//     points.push(val);
-// }
 let points = Array.from({ length: 255 }, (_, i) => i + 1);
 for (let i = points.length - 1; i > 0; i--) {
   const j = Math.floor(Math.random() * (i + 1));
@@ -23,7 +18,7 @@ var noise = (x) => {
 
 let lerp = (a, b, t) => a + ((b - a) * (1 - Math.cos(t * Math.PI))) / 2;
 
-// init
+// variables
 let x = 0;
 let y = 0;
 let bgcolor = "#ff4301";
@@ -43,11 +38,9 @@ function draw() {
   ctx.fillStyle = forecolor;
   ctx.beginPath();
   ctx.moveTo(offset, c.height - offset);
-  //   ctx.lineTo(offset, 200);
   for (let i = offset; i < c.width - offset; ++i) {
     ctx.lineTo(i, c.height * 0.9 - noise(i + moving) * 0.3);
   }
-  // ctx.lineTo(c.width - offset, 200);
   ctx.lineTo(c.width - offset, c.height - offset);
   ctx.closePath();
   ctx.fill();
