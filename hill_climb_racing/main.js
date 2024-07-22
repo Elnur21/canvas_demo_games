@@ -9,10 +9,8 @@ let isMobile = false;
       a.substr(0, 4)
     )
   )
-  isMobile = true;
+    isMobile = true;
 })(navigator.userAgent || navigator.vendor || window.opera);
-
-
 
 // setup
 let c = document.createElement("canvas");
@@ -61,7 +59,23 @@ let player = new (function () {
   // interface
   this.startBtn = new Image();
   this.startBtn.src = "./images/pause.png";
+  this.leftBtn = new Image();
+  this.leftBtn.src = "./images/left.png";
+  this.rightBtn = new Image();
+  this.rightBtn.src = "./images/right.png";
+  this.nitroBtn = new Image();
+  this.nitroBtn.src = "./images/nitro.png";
+  this.pauseBtn = new Image();
+  this.pauseBtn.src = "./images/resume.png";
 
+  this.drawInterFace = function () {
+    // buttons draw
+    if (playing) {
+      ctx.drawImage(this.leftBtn, 20, c.height - 90, 70, 70);
+      ctx.drawImage(this.rightBtn, 110, c.height - 90, 70, 70);
+      ctx.drawImage(this.nitroBtn, c.width - 90, c.height - 90, 70, 70);
+    }
+  };
   this.draw = function () {
     let p1 = c.height * 0.9 - noise(this.x + moving) * yRatio;
     let p2 = c.height * 0.9 - noise(this.x + moving + 5) * yRatio;
@@ -99,14 +113,11 @@ let player = new (function () {
     if (this.rot > Math.PI) this.rot = -Math.PI;
     if (this.rot < -Math.PI) this.rot = Math.PI;
     this.y += this.ySpeed;
+
+    // player draw
     ctx.save();
     ctx.translate(this.x, this.y);
-
-    // if(noise(this.x + moving)>noise(this.x + moving -1)){
-    //     ctx.rotate(-this.rot);
-    // }else{
     ctx.rotate(this.rot);
-    // }
     ctx.drawImage(this.truck, -75, -40, 150, 80);
     ctx.restore();
   };
@@ -135,7 +146,35 @@ function draw() {
   ctx.stroke();
 
   player.draw();
+  player.drawInterFace();
   requestAnimationFrame(draw);
 }
 
 draw();
+
+c.addEventListener("touchstart", handleStart, false);
+c.addEventListener("touchend", handleEnd, false);
+
+function handleStart(e) {
+  e.preventDefault();
+  let touches = e.changedTouches;
+  for (let i = 0; i < touches.length; i++) {
+    const touch = touches[i];
+    if (
+      touch.pageX > c.width / 2 - 25 &&
+      touch.pageX < c.width / 2 + 25 &&
+      touch.pageY > c.height / 3 - 50 &&
+      touch.pageY < c.height / 3
+    ) {
+      window.location.reload();
+    }
+  }
+}
+
+function handleEnd(e) {
+  e.preventDefault();
+  let touches = e.changedTouches;
+  for (let i = 0; i < touches.length; i++) {
+    const touch = touches[i];
+  }
+}
