@@ -11,8 +11,46 @@ document.body.appendChild(c);
 let ctx = c.getContext("2d");
 
 let rotate = 0;
+let bullets;
+let shootControl = false;
 
 ctx.clearRect(0, 0, c.width, c.height);
+
+c.addEventListener("click", (e) => {});
+
+class Circle {
+  constructor(bx, by, tx, ty, r, c, s) {
+    this.bx = bx;
+    this.by = by;
+    this.x = bx;
+    this.y = by;
+    this.r = r;
+    this.c = c;
+    this.tx = tx;
+    this.ty = ty;
+    this.speed = s;
+  }
+  draw() {
+    ctx.fillStyle = this.c;
+    ctx.beginPath();
+    console.log(rotate);
+    ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.closePath();
+  }
+  update() {
+    let dx = this.tx - this.bx;
+    let dy = this.ty - this.by;
+    let dist = Math.sqrt(dx * dx + dy * dy);
+    this.x += (dx / dist) * this.speed;
+    this.y += (dy / dist) * this.speed;
+  }
+  remove() {
+    if (this.x < 0 || this.x > width) {
+      bullets.splice(bullets.indexOf(this), 1);
+    }
+  }
+}
 
 class Player {
   constructor(x, y, r, c) {
@@ -41,10 +79,6 @@ class Player {
   }
 }
 
-// ctx.fillStyle = "white";
-// ctx.arc(100, 100, 20, 0, Math.PI * 2);
-// ctx.fillRect(100, 95, 30, 10);
-// ctx.fill();
 let player;
 const k = {
   ArrowUp: 0,
@@ -54,11 +88,27 @@ const k = {
 
 function animate() {
   requestAnimationFrame(animate);
-  ctx.fillRect(0, 0, width, height);
+  ctx.clearRect(0, 0, width, height);
   player.draw();
+
+  if (k.ArrowUp == 1 && !shootControl) {
+    let tx = player.x + Math.cos(rotate) * 1000;
+    let ty = player.y + Math.sin(rotate) * 1000;
+    bullets.push(new Circle(player.x, player.y, tx, ty, 5, "blue", 5));
+    shootControl = true;
+  } else if (k.ArrowUp == 0) {
+    shootControl = false;
+  }
+
+  bullets.forEach((bullet) => {
+    bullet.remove();
+    bullet.update();
+    bullet.draw();
+  });
 }
 
 function init() {
+  bullets = [];
   player = new Player(width / 2, height / 2, 20, "red");
   animate();
 }
