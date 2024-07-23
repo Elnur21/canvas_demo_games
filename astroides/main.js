@@ -11,15 +11,14 @@ document.body.appendChild(c);
 let ctx = c.getContext("2d");
 
 let rotate = 0;
-let bullets;
+let bullets, enemies, maxenemy;
 let shootControl = false;
+let playing = true;
 
 ctx.clearRect(0, 0, c.width, c.height);
 
-c.addEventListener("click", (e) => {});
-
 class Circle {
-  constructor(bx, by, tx, ty, r, c, s) {
+  constructor(bx, by, tx, ty, r, c, s, type) {
     this.bx = bx;
     this.by = by;
     this.x = bx;
@@ -29,11 +28,11 @@ class Circle {
     this.tx = tx;
     this.ty = ty;
     this.speed = s;
+    this.type = type;
   }
   draw() {
     ctx.fillStyle = this.c;
     ctx.beginPath();
-    console.log(rotate);
     ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
     ctx.fill();
     ctx.closePath();
@@ -47,7 +46,11 @@ class Circle {
   }
   remove() {
     if (this.x < 0 || this.x > width) {
-      bullets.splice(bullets.indexOf(this), 1);
+      if (this.type == "bullet") {
+        bullets.splice(bullets.indexOf(this), 1);
+      } else {
+        enemies.splice(enemies.indexOf(this), 1);
+      }
     }
   }
 }
@@ -86,30 +89,94 @@ const k = {
   ArrowRight: 0,
 };
 
-function animate() {
-  requestAnimationFrame(animate);
-  ctx.clearRect(0, 0, width, height);
-  player.draw();
-
-  if (k.ArrowUp == 1 && !shootControl) {
-    let tx = player.x + Math.cos(rotate) * 1000;
-    let ty = player.y + Math.sin(rotate) * 1000;
-    bullets.push(new Circle(player.x, player.y, tx, ty, 5, "blue", 5));
-    shootControl = true;
-  } else if (k.ArrowUp == 0) {
-    shootControl = false;
+function addEnemy() {
+  for (let i = enemies.length; i < maxenemy; i++) {
+    let radius = Math.random() * 30 + 10;
+    let speed = radius > 20 ? 0.5 : 2;
+    let x, y;
+    if (Math.random() < 0.5) {
+      x = Math.random() > 0.5 ? width : 0;
+      y = Math.random() * height;
+    } else {
+      x = Math.random() * width;
+      y = Math.random() > 0.5 ? height : 0;
+    }
+    enemies.push(
+      new Circle(
+        x,
+        y,
+        player.x,
+        player.y,
+        radius,
+        `hsl(${Math.random() * 360},80%,50%)`,
+        speed,
+        "enemy"
+      )
+    );
   }
+}
 
-  bullets.forEach((bullet) => {
-    bullet.remove();
-    bullet.update();
-    bullet.draw();
-  });
+function collision(x1, y1, r1, x2, y2, r2) {
+  let dx = x1 - x2;
+  let dy = y1 - y2;
+  let dist = Math.sqrt(dx * dx + dy * dy);
+  if (dist < r1 + r2) {
+    return true;
+  }
+  return false;
+}
+
+function animate() {
+  if (playing) {
+    requestAnimationFrame(animate);
+    ctx.clearRect(0, 0, width, height);
+
+    if (k.ArrowUp == 1 && !shootControl) {
+      let tx = player.x + Math.cos(rotate) * 1000;
+      let ty = player.y + Math.sin(rotate) * 1000;
+      bullets.push(
+        new Circle(player.x, player.y, tx, ty, 5, "blue", 5, "bullet")
+      );
+      shootControl = true;
+    } else if (k.ArrowUp == 0) {
+      shootControl = false;
+    }
+
+    enemies.forEach((enemy) => {
+      if (collision(enemy.x, enemy.y, enemy.r, player.x, player.y, player.r)) {
+        console.log("game over");
+        playing = false;
+      }
+      enemy.remove();
+      addEnemy();
+      enemy.update();
+      enemy.draw();
+    });
+
+    bullets.forEach((bullet) => {
+      bullet.remove();
+      bullet.update();
+      bullet.draw();
+      enemies.forEach((enemy) => {
+        if (
+          collision(enemy.x, enemy.y, enemy.r, bullet.x, bullet.y, bullet.r)
+        ) {
+          bullets.splice(bullets.indexOf(bullet), 1);
+          enemies.splice(enemies.indexOf(enemy), 1);
+        }
+      });
+    });
+
+    player.draw();
+  }
 }
 
 function init() {
   bullets = [];
-  player = new Player(width / 2, height / 2, 20, "red");
+  enemies = [];
+  maxenemy = 4;
+  player = new Player(width / 2, height / 2, 20, "white");
+  addEnemy();
   animate();
 }
 
