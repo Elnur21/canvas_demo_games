@@ -27,6 +27,10 @@ c.addEventListener("mousemove", (e) => {
   else px = x;
 });
 
+function map(value, start1, stop1, start2, stop2) {
+  return start2 + (stop2 - start2) * ((value - start1) / (stop1 - start1));
+}
+
 class Player {
   constructor(px, py, pw, ph, c) {
     this.x = px;
@@ -72,13 +76,16 @@ function animate() {
   if (playing) {
     if (bx > px && bx < px + pw && by + 15 >= py) {
       //   playing = false;
-      g -= Math.random() * 5;
-      bs += Math.floor(Math.random() * 11) - 5;
-    } else {
-      g += 0.05;
+      g -= Math.random() * 2;
+      bs += map(Math.abs(px - bx), 0, pw, -1, 1);
     }
+    if (by > py + ph) playing = false;
+    g += 0.05;
     by += g;
     bx += bs;
+    if (bx < 30 || bx > width - 30) {
+      bs *= -1;
+    }
     ctx.clearRect(0, 0, width, height);
     requestAnimationFrame(animate);
     player.draw();
