@@ -6,7 +6,17 @@ c.width = width;
 c.height = height;
 let ctx = c.getContext("2d");
 
-let px, py, pw, ph, directionX, directionY, player, keys, playing, targets;
+let px,
+  py,
+  pw,
+  ph,
+  directionX,
+  directionY,
+  playerArray,
+  keys,
+  playing,
+  targets,
+  maxTarget;
 
 // setup
 px = 0;
@@ -16,6 +26,8 @@ ph = 20;
 playing = true;
 directionX = 0;
 directionY = 0;
+maxTarget = 1;
+playerArray = [];
 keys = {
   ArrowUp: 0,
   ArrowDown: 0,
@@ -23,7 +35,11 @@ keys = {
   ArrowRight: 0,
 };
 
-class Player {
+function getRandomNumber() {
+  return Math.floor(Math.random() * 480);
+}
+
+class Square {
   constructor(x, y, w, h) {
     this.x = x;
     this.y = y;
@@ -40,37 +56,100 @@ class Player {
   }
 }
 
-player = new Player(px, py, pw, ph);
+class Circle {
+  constructor(x, y, r, c) {
+    this.x = x;
+    this.y = y;
+    this.r = r;
+    this.c = c;
+  }
+  draw() {
+    ctx.fillStyle = this.c;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.closePath();
+  }
+  update(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+  remove() {
+    targets.splice(targets.indexOf(this), 1);
+  }
+}
 
+let direction = "";
 function animate() {
   if (keys.ArrowUp == 1) {
     directionX = 0;
     directionY = -1;
-  }
-  if (keys.ArrowDown == 1) {
+  } else if (keys.ArrowDown == 1) {
     directionX = 0;
     directionY = 1;
-  }
-  if (keys.ArrowLeft == 1) {
+  } else if (keys.ArrowLeft == 1) {
     directionX = -1;
     directionY = 0;
-  }
-  if (keys.ArrowRight == 1) {
+  } else if (keys.ArrowRight == 1) {
     directionX = 1;
     directionY = 0;
   }
 
-  px += directionX;
-  py += directionY;
+  px += directionX * 4;
+  py += directionY * 4;
+  if (px > width - 20 || px < 0 || py < 0 || py > height - 20) playing = false;
   if (playing) {
     requestAnimationFrame(animate);
     ctx.clearRect(0, 0, width, height);
-    player.draw();
-    player.update(px, py);
+
+    let prevX = px;
+    let prevY = py;
+    playerArray.forEach((square, index) => {
+      if (index === 0) {
+        square.update(px, py);
+      } else {
+        let tempX = square.x;
+        let tempY = square.y;
+        square.update(prevX, prevY);
+        prevX = tempX;
+        prevY = tempY;
+      }
+      square.draw();
+    });
+    targets.forEach((target) => {
+      target.draw();
+      if (
+        px - target.x > -20 &&
+        px - target.x < 20 &&
+        py - target.y > -20 &&
+        py - target.y < 20
+      ) {
+        target.remove();
+        let firstPart = playerArray[0];
+        playerArray.push(new Square(firstPart.x, firstPart.y, pw, ph));
+        targets.push(
+          new Circle(getRandomNumber(), getRandomNumber(), 10, "blue")
+        );
+      }
+    });
   }
 }
 
 function init() {
+  targets = [];
+  for (var i = 0; i < maxTarget; i++) {
+    targets.push(new Circle(getRandomNumber(), getRandomNumber(), 10, "blue"));
+  }
+  playerArray.push(new Square(px, py, pw, ph));
+  playerArray.push(new Square(px, py, pw, ph));
+  playerArray.push(new Square(px, py, pw, ph));
+  playerArray.push(new Square(px, py, pw, ph));
+  playerArray.push(new Square(px, py, pw, ph));
+  playerArray.push(new Square(px, py, pw, ph));
+  playerArray.push(new Square(px, py, pw, ph));
+  playerArray.push(new Square(px, py, pw, ph));
+  playerArray.push(new Square(px, py, pw, ph));
+  playerArray.push(new Square(px, py, pw, ph));
   animate();
 }
 
