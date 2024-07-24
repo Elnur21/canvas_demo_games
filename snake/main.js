@@ -1,5 +1,6 @@
 // setup
 let c = document.querySelector(".gameBoard");
+let scoreElement = document.querySelector("#score");
 let width = 500;
 let height = 500;
 c.width = width;
@@ -16,18 +17,24 @@ let px,
   keys,
   playing,
   targets,
+  score,
+  borders,
   maxTarget;
 
 // setup
-px = 0;
-py = 0;
-pw = 20;
-ph = 20;
-playing = true;
-directionX = 0;
-directionY = 0;
-maxTarget = 1;
-playerArray = [];
+function gameSetup() {
+  px = 0;
+  py = 0;
+  pw = 20;
+  ph = 20;
+  playing = true;
+  directionX = 0;
+  directionY = 0;
+  maxTarget = 1;
+  borders = [];
+  playerArray = [new Square(px, py, pw, ph, "red")];
+  score = 0;
+}
 keys = {
   ArrowUp: 0,
   ArrowDown: 0,
@@ -39,15 +46,29 @@ function getRandomNumber() {
   return Math.floor(Math.random() * 480);
 }
 
+c.addEventListener("click", (e) => {
+  if (!playing) {
+    if (
+      e.clientX > window.innerWidth / 2 - 35 &&
+      e.clientX < window.innerWidth / 2 + 35 &&
+      e.clientY > 405 &&
+      e.clientY < 475
+    ) {
+      gameSetup();
+    }
+  }
+});
+
 class Square {
-  constructor(x, y, w, h) {
+  constructor(x, y, w, h, c) {
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
+    this.c = c;
   }
   draw() {
-    ctx.fillStyle = "red";
+    ctx.fillStyle = this.c;
     ctx.fillRect(this.x, this.y, this.w, this.h);
   }
   update(x, y) {
@@ -79,7 +100,6 @@ class Circle {
   }
 }
 
-let direction = "";
 function animate() {
   if (keys.ArrowUp == 1) {
     directionX = 0;
@@ -97,9 +117,11 @@ function animate() {
 
   px += directionX * 4;
   py += directionY * 4;
-  if (px > width - 20 || px < 0 || py < 0 || py > height - 20) playing = false;
+  requestAnimationFrame(animate);
   if (playing) {
-    requestAnimationFrame(animate);
+    if (px > width - 10 || px < -10 || py < -10 || py > height - 10)
+      playing = false;
+
     ctx.clearRect(0, 0, width, height);
 
     let prevX = px;
@@ -124,32 +146,29 @@ function animate() {
         py - target.y > -20 &&
         py - target.y < 20
       ) {
+        score += 1;
+        scoreElement.innerHTML = score;
         target.remove();
         let firstPart = playerArray[0];
-        playerArray.push(new Square(firstPart.x, firstPart.y, pw, ph));
+        playerArray.push(new Square(firstPart.x, firstPart.y, pw, ph, "red"));
         targets.push(
           new Circle(getRandomNumber(), getRandomNumber(), 10, "blue")
         );
       }
     });
+  } else {
+    let restartBtn = new Image();
+    restartBtn.src = "./images/restart.png";
+    ctx.drawImage(restartBtn, 215, 215, 70, 70);
   }
 }
 
 function init() {
+  gameSetup();
   targets = [];
   for (var i = 0; i < maxTarget; i++) {
     targets.push(new Circle(getRandomNumber(), getRandomNumber(), 10, "blue"));
   }
-  playerArray.push(new Square(px, py, pw, ph));
-  playerArray.push(new Square(px, py, pw, ph));
-  playerArray.push(new Square(px, py, pw, ph));
-  playerArray.push(new Square(px, py, pw, ph));
-  playerArray.push(new Square(px, py, pw, ph));
-  playerArray.push(new Square(px, py, pw, ph));
-  playerArray.push(new Square(px, py, pw, ph));
-  playerArray.push(new Square(px, py, pw, ph));
-  playerArray.push(new Square(px, py, pw, ph));
-  playerArray.push(new Square(px, py, pw, ph));
   animate();
 }
 

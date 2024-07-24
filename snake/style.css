@@ -7,11 +7,23 @@ body {
   background-color: black;
 }
 .gameContainer {
-  transform: translateY(25%);
   display: flex;
   justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 20px;
+}
+.scores{
+  font-family: Arial, Helvetica, sans-serif;
+  width: 300px;
+  padding: 5px 0;
+  text-align: center;
+  color: black;
+  background-color: white;
+  border-radius: 30px;
 }
 
 .gameBoard {
   background-color: green;
+  transform: translateY(25%);
 }
