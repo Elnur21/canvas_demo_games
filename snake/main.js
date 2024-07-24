@@ -6,13 +6,16 @@ c.width = width;
 c.height = height;
 let ctx = c.getContext("2d");
 
-let px, py, pw, ph, player, keys, playing, targets;
+let px, py, pw, ph, directionX, directionY, player, keys, playing, targets;
 
 // setup
 px = 0;
 py = 0;
 pw = 20;
 ph = 20;
+playing = true;
+directionX = 0;
+directionY = 0;
 keys = {
   ArrowUp: 0,
   ArrowDown: 0,
@@ -40,9 +43,31 @@ class Player {
 player = new Player(px, py, pw, ph);
 
 function animate() {
-  requestAnimationFrame(animate);
-  ctx.clearRect(0, 0, width, height);
-  player.draw();
+  if (keys.ArrowUp == 1) {
+    directionX = 0;
+    directionY = -1;
+  }
+  if (keys.ArrowDown == 1) {
+    directionX = 0;
+    directionY = 1;
+  }
+  if (keys.ArrowLeft == 1) {
+    directionX = -1;
+    directionY = 0;
+  }
+  if (keys.ArrowRight == 1) {
+    directionX = 1;
+    directionY = 0;
+  }
+
+  px += directionX;
+  py += directionY;
+  if (playing) {
+    requestAnimationFrame(animate);
+    ctx.clearRect(0, 0, width, height);
+    player.draw();
+    player.update(px, py);
+  }
 }
 
 function init() {
