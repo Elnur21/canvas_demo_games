@@ -147,6 +147,14 @@ function animate() {
     });
     borders.forEach((border) => {
       border.draw();
+      if (
+        px > border.x &&
+        px < border.x + 20 &&
+        py > border.y &&
+        py < border.y + 20
+      ) {
+        playing = false;
+      }
     });
     targets.forEach((target) => {
       target.draw();
