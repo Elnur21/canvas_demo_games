@@ -1,0 +1,17 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  background-color: black;
+}
+.gameContainer {
+  transform: translateY(25%);
+  display: flex;
+  justify-content: center;
+}
+
+.gameBoard {
+  background-color: green;
+}
