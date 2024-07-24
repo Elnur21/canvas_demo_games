@@ -1,6 +1,11 @@
 // setup
 let c = document.querySelector(".gameBoard");
 let scoreElement = document.querySelector("#score");
+let bestScoreElement = document.querySelector("#bestScore");
+bestScoreElement.innerHTML = localStorage.getItem("bestScore")
+  ? localStorage.getItem("bestScore")
+  : 0;
+let bestScore = bestScoreElement.textContent;
 let width = 500;
 let height = 500;
 c.width = width;
@@ -33,7 +38,9 @@ function gameSetup() {
   maxTarget = 1;
   borders = [];
   playerArray = [new Square(px, py, pw, ph, "red")];
+  targets = [new Circle(getRandomNumber(), getRandomNumber(), 10, "blue")];
   score = 0;
+  scoreElement.innerHTML = score;
 }
 keys = {
   ArrowUp: 0,
@@ -138,6 +145,9 @@ function animate() {
       }
       square.draw();
     });
+    borders.forEach((border) => {
+      border.draw();
+    });
     targets.forEach((target) => {
       target.draw();
       if (
@@ -147,6 +157,16 @@ function animate() {
         py - target.y < 20
       ) {
         score += 1;
+        if (score != 0 && score % 2 == 0) {
+          borders.push(
+            new Square(getRandomNumber(), getRandomNumber(), pw, ph, "white")
+          );
+        } else if (score != 0 && score % 5 == 0) {
+          targets.push(
+            new Circle(getRandomNumber(), getRandomNumber(), 10, "blue")
+          );
+        }
+        if (Number(bestScore) < score) bestScoreElement.innerHTML = score;
         scoreElement.innerHTML = score;
         target.remove();
         let firstPart = playerArray[0];
@@ -160,15 +180,12 @@ function animate() {
     let restartBtn = new Image();
     restartBtn.src = "./images/restart.png";
     ctx.drawImage(restartBtn, 215, 215, 70, 70);
+    if (Number(bestScore) < score) localStorage.setItem("bestScore", score);
   }
 }
 
 function init() {
   gameSetup();
-  targets = [];
-  for (var i = 0; i < maxTarget; i++) {
-    targets.push(new Circle(getRandomNumber(), getRandomNumber(), 10, "blue"));
-  }
   animate();
 }
 
