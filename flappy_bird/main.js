@@ -24,7 +24,7 @@ class Enemy {
     ctx.fillRect(this.x, this.height + 100, this.width, height - this.height);
   }
   update() {
-    this.x -= 0.5;
+    this.x -= 1;
   }
   remove() {
     enemies.splice(enemies.indexOf(this), 1);
@@ -57,15 +57,13 @@ const getRandom = () => {
 //setup
 let playing = true;
 let playerY = height / 2 - 10;
+let eStart = width / 2;
 let player = new Player(40, playerY, 10, "white");
-let enemy = new Enemy(110, 0, 50, getRandom(), "red");
-console.log(enemy);
-enemies.push(enemy);
 
 function animate() {
   requestAnimationFrame(animate);
   if (playing) {
-    playerY += 0.5;
+    playerY += 1;
     ctx.clearRect(0, 0, width, height);
     ctx.fillStyle = "blue";
     ctx.fillRect(0, 0, width, height);
@@ -74,7 +72,8 @@ function animate() {
       enemy.update();
       if (enemy.x < 0) {
         enemy.remove();
-        enemies.push(new Enemy(width, 0, 50, getRandom(), "red"));
+        if (enemies.length < 3)
+          enemies.push(new Enemy(eStart + 160 * 2, 0, 50, getRandom(), "red"));
       }
       if (
         player.x >= enemy.x &&
@@ -85,7 +84,7 @@ function animate() {
     });
     player.draw();
     player.update(playerY);
-    if(playerY>=height || playerY<=0){
+    if (playerY >= height || playerY <= 0) {
       playing = false;
     }
   }
@@ -95,4 +94,11 @@ canvas.addEventListener("click", (e) => {
   playerY -= 20;
 });
 
-animate();
+function init() {
+  enemies.push(new Enemy(eStart, 0, 50, getRandom(), "red"));
+  enemies.push(new Enemy(eStart + 160, 0, 50, getRandom(), "red"));
+  enemies.push(new Enemy(eStart + 160 * 2, 0, 50, getRandom(), "red"));
+  animate();
+}
+
+init();
